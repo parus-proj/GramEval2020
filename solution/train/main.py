@@ -111,7 +111,7 @@ class Config(object):
         parser = ParserConfig(**json_config['parser'])
         trainer = TrainerConfig(**json_config['trainer'])
         data = DataConfig(**json_config['data'])
-        task = TaskConfig(**json_config['task'])
+        task = TaskConfig(**json_config['task']) if 'task' in json_config else TaskConfig()
 
         embedder_config = json_config['embedder']
         embedder_models = [EmbedderModelConfig(**model_config) for model_config in embedder_config['models']]
