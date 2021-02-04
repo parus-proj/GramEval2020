@@ -1,7 +1,14 @@
 {
   "model_name": "ru_bert_parser_with_tagger",
   "embedder": {
-    "models": [{"name": "ru_bert"}],
+    "models": [
+      {
+        "name": "ru_bert",
+        "params": {
+          "requires_grad": true
+        }
+      }
+    ],
     "dropout": 0.4,
     "use_pymorphy": true
   },
@@ -55,5 +62,9 @@
       "GramEval2020-SynTagRus-dev.conllu",
       "GramEval2020-Taiga-poetry-dev.conllu"
     ]
+  },
+  "task": {
+    "task_type": "multitask",
+    "params": {}
   }
 }
