@@ -1,7 +1,7 @@
 {
   "model_name": "ru_bert_parser_with_tagger",
   "embedder": {
-    "name": "ru_bert",
+    "models": [{"name": "ru_bert"}],
     "dropout": 0.4,
     "use_pymorphy": true
   },
