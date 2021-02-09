@@ -1,0 +1,72 @@
+{
+  "model_name": "char_bilstm",
+  "embedder": {
+    "models": [
+      {
+        "name": "char_bilstm",
+        "params": {
+          "char_embedding_dim": 32,
+          "lstm_dim": 128,
+          "lstm_num_layers": 1,
+          "lstm_dropout": 0.3,
+          "dropout": 0.3
+        }
+      }
+    ],
+    "dropout": 0.2,
+    "use_pymorphy": true
+  },
+  "encoder": {
+    "encoder_type": "lstm",
+    "hidden_dim": 256,
+    "num_layers": 1,
+    "dropout": 0.3,
+    "variational_dropout": 0,
+    "use_weight_drop": false
+  },
+  "parser": {
+    "dropout": 0.1,
+    "tag_representation_dim": 256,
+    "arc_representation_dim": 512,
+    "gram_val_representation_dim": -1,
+    "lemma_representation_dim": -1
+  },
+  "trainer": {
+    "batch_size": 64,
+    "num_epochs": 100,
+    "patience": 5,
+    "lr": 0.001,
+    "bert_lr": 0.0001,
+    "cut_frac": 0.1,
+    "gradual_unfreezing": true,
+    "discriminative_fine_tuning": true,
+    "num_gradient_accumulation_steps": 1
+  },
+  "data": {
+    "data_dir": "../data",
+    "pretrained_models_dir": "../pretrained_models",
+    "models_dir": "../models",
+    "train_data_all_except": null,
+    "train_data": [
+      "GramEval2020-GSD-train.conllu",
+      "GramEval2020-SynTagRus-train-v2.conllu",
+      "GramEval2020-Taiga-news-train.conllu",
+      "GramEval2020-Taiga-poetry-train.conllu",
+      "GramEval2020-Taiga-social-train.conllu",
+      "MorphoRuEval2017-JZ-gold.conllu",
+      "MorphoRuEval2017-Lenta-train.conllu",
+      "MorphoRuEval2017-VK-gold.conllu"
+    ],
+    "valid_data": [
+      "GramEval2020-GSD-wiki-dev.conllu",
+      "GramEval2020-RuEval2017-Lenta-news-dev.conllu",
+      "GramEval2020-RuEval2017-social-dev.conllu",
+      "GramEval2020-SynTagRus-dev.conllu",
+      "GramEval2020-Taiga-poetry-dev.conllu"
+    ]
+  },
+  "task": {
+    "task_type": "multitask",
+    "params": {}
+  }
+}
