@@ -67,30 +67,37 @@ def main():
 
     reader = _get_reader(config, skip_labels=True, bert_max_length=BERT_MAX_LENGTH, reader_max_length=None)
 
-    for path in os.listdir(args.data_dir):
-        if not path.endswith('.conllu'):
-            continue
-
-        data = reader.read(os.path.join(args.data_dir, path))
-
-        if morpho_vectorizer is not None:
-            morpho_vectorizer.apply_to_instances(data)
-
-        with open(os.path.join(result_data_dir, path), 'w') as f_out:
-            for begin_index in tqdm(range(0, len(data), args.batch_size)):
-                end_index = min(len(data), begin_index + args.batch_size)
-                predictions_list = model.forward_on_instances(data[begin_index: end_index])
-                for predictions in predictions_list:
-                    for token_index in range(len(predictions['words'])):
-                        word = predictions['words'][token_index]
-                        lemma = predictions['predicted_lemmas'][token_index]
-                        upos, feats = predictions['predicted_gram_vals'][token_index].split('|', 1)
-                        head_tag = predictions['predicted_dependencies'][token_index]
-                        head_index = predictions['predicted_heads'][token_index]
-
-                        print(token_index + 1, word, lemma, upos, '_', feats,
-                              head_index, head_tag, '_', '_', sep='\t', file=f_out)
-                    print(file=f_out)
+    for root, dirs, files in os.walk(args.data_dir):
+        
+        for name in dirs:
+            os.makedirs( os.path.join(root, name) )
+            
+        for name in files:
+            path = os.path.join(root, name)
+        
+            if not path.endswith('.conllu'):
+                continue
+    
+            data = reader.read(os.path.join(args.data_dir, path))
+    
+            if morpho_vectorizer is not None:
+                morpho_vectorizer.apply_to_instances(data)
+    
+            with open(os.path.join(result_data_dir, path), 'w') as f_out:
+                for begin_index in tqdm(range(0, len(data), args.batch_size)):
+                    end_index = min(len(data), begin_index + args.batch_size)
+                    predictions_list = model.forward_on_instances(data[begin_index: end_index])
+                    for predictions in predictions_list:
+                        for token_index in range(len(predictions['words'])):
+                            word = predictions['words'][token_index]
+                            lemma = predictions['predicted_lemmas'][token_index]
+                            upos, feats = predictions['predicted_gram_vals'][token_index].split('|', 1)
+                            head_tag = predictions['predicted_dependencies'][token_index]
+                            head_index = predictions['predicted_heads'][token_index]
+    
+                            print(token_index + 1, word, lemma, upos, '_', feats,
+                                  head_index, head_tag, '_', '_', sep='\t', file=f_out)
+                        print(file=f_out)
 
 
 if __name__ == "__main__":
