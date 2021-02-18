@@ -68,7 +68,7 @@ def main():
     reader = _get_reader(config, skip_labels=True, bert_max_length=BERT_MAX_LENGTH, reader_max_length=None)
 
     for root, dirs, files in os.walk(args.data_dir):
-        reroot = root[len(args.data_dir):]
+        reroot = root[len(args.data_dir)+1:]
         
         for name in dirs:
             os.makedirs( os.path.join(result_data_dir, reroot, name) )
