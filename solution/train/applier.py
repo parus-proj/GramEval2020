@@ -70,7 +70,9 @@ def main():
     for root, dirs, files in os.walk(args.data_dir):
         
         for name in dirs:
-            os.makedirs( os.path.join(root, name) )
+            base_root_len = len(args.data_dir)
+            reroot = root[base_root_len:]
+            os.makedirs( os.path.join(result_data_dir, reroot, name) )
             
         for name in files:
             path = os.path.join(root, name)
