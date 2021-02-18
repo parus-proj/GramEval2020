@@ -80,7 +80,7 @@ def main():
             if not path.endswith('.conllu'):
                 continue
     
-            data = reader.read(os.path.join(args.data_dir, path))
+            data = reader.read(path)
     
             if morpho_vectorizer is not None:
                 morpho_vectorizer.apply_to_instances(data)
