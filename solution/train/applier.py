@@ -68,14 +68,14 @@ def main():
     reader = _get_reader(config, skip_labels=True, bert_max_length=BERT_MAX_LENGTH, reader_max_length=None)
 
     for root, dirs, files in os.walk(args.data_dir):
+        reroot = root[len(args.data_dir):]
         
         for name in dirs:
-            base_root_len = len(args.data_dir)
-            reroot = root[base_root_len:]
             os.makedirs( os.path.join(result_data_dir, reroot, name) )
             
         for name in files:
             path = os.path.join(root, name)
+            result_path = os.path.join(result_data_dir, reroot, name)
         
             if not path.endswith('.conllu'):
                 continue
@@ -85,7 +85,7 @@ def main():
             if morpho_vectorizer is not None:
                 morpho_vectorizer.apply_to_instances(data)
     
-            with open(os.path.join(result_data_dir, path), 'w') as f_out:
+            with open(result_path, 'w') as f_out:
                 for begin_index in tqdm(range(0, len(data), args.batch_size)):
                     end_index = min(len(data), begin_index + args.batch_size)
                     predictions_list = model.forward_on_instances(data[begin_index: end_index])
