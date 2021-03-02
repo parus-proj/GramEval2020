@@ -39,7 +39,8 @@ def main():
     args = parser.parse_args()
 
     model_dir = os.path.join(args.models_dir, args.model_name)
-    result_data_dir = os.path.join(args.predictions_dir, args.model_name)
+    result_data_dir = args.predictions_dir
+    #result_data_dir = os.path.join(args.predictions_dir, args.model_name)
 
     if not os.path.isdir(result_data_dir):
         os.makedirs(result_data_dir)
@@ -54,6 +55,7 @@ def main():
     logger.info('Config: %s', config)
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu:0')
+    #device = torch.device('cpu')
 
     vocab = Vocabulary.from_files(os.path.join(model_dir, 'vocab'))
     lemmatize_helper = LemmatizeHelper.load(model_dir)
@@ -80,6 +82,7 @@ def main():
             if not path.endswith('.conllu'):
                 continue
     
+            print("PROCESSING: "+path)
             data = reader.read(path)
     
             if morpho_vectorizer is not None:
