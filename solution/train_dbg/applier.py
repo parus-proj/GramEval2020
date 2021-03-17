@@ -36,6 +36,7 @@ def main():
     )
     parser.add_argument('--batch-size', default=128, type=int)
     parser.add_argument('--checkpoint-name', default='best.th', help='Name of the checkpoint to use')
+    parser.add_argument('--cuda-unit', default='0', help='CUDA device number')
     args = parser.parse_args()
 
     model_dir = os.path.join(args.models_dir, args.model_name)
@@ -54,7 +55,8 @@ def main():
 
     logger.info('Config: %s', config)
 
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu:0')
+    cuda_dev_name = 'cuda:' + args.cuda_unit
+    device = torch.device(cuda_dev_name if torch.cuda.is_available() else 'cpu:0')
     #device = torch.device('cpu')
 
     vocab = Vocabulary.from_files(os.path.join(model_dir, 'vocab'))
