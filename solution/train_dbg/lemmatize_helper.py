@@ -132,6 +132,16 @@ class LemmatizeHelper(object):
         else:
             lemma = word[rule.cut_prefix:]
         lemma += rule.append_suffix
+        
+        # для отладки добавим к лемме информацию, сколько символов суффикса было добавлено
+        caseop = ""
+        if rule.lower:
+            caseop += "▼"
+        if rule.capitalize:
+            caseop += "♦"
+        if rule.upper:
+            caseop += "▲"
+        lemma += "__" + str(len(rule.append_suffix)) + caseop
 
         return lemma
 
