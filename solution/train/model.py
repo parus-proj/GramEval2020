@@ -346,6 +346,13 @@ class DependencyParser(Model):
             A mask denoting the padded elements in the batch.
         """
         embedded_text_input = self.text_field_embedder(words)
+        
+        # для отладки
+#        for name, param in self.named_parameters():
+#            if torch.any(torch.isnan(param)):
+#                assert False, "NaN in {} layer".format(name) 
+#            if torch.any(torch.isinf(param)):
+#                assert False, "INF in {} layer".format(name) 
 
         if morpho_embedding is not None:
             embedded_text_input = torch.cat([embedded_text_input, morpho_embedding], -1)

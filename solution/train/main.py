@@ -347,24 +347,44 @@ def _build_trainer(config, model, vocab, train_data, valid_data):
     )
 
     if is_bert_based or is_trainable_elmo_based:
-        def _is_pretrained_param(name):
-            return 'transformer_model' in name or '_elmo_lstm' in name
-
-        pretrained_params, non_pretrained_params = [], []
-        for name, param in model.named_parameters():
-            if _is_pretrained_param(name):
-                logger.info('Pretrained param: %s', name)
-                pretrained_params.append(param)
-            else:
-                logger.info('Non-pretrained param: %s', name)
-                non_pretrained_params.append(param)
-
-        optimizer = optim.AdamW([
-            {'params': pretrained_params, 'lr': config.trainer.bert_lr},
-            {'params': non_pretrained_params, 'lr': config.trainer.lr},
-            {'params': []}
-        ])
-
+        params_list = []
+        non_pretrained_params = []
+        if is_bert_based:
+            bert_groups = ['transformer_model.embeddings.', 'transformer_model.encoder.layer.0.', 'transformer_model.encoder.layer.1.',
+                           'transformer_model.encoder.layer.2.', 'transformer_model.encoder.layer.3.', 'transformer_model.encoder.layer.4.',
+                           'transformer_model.encoder.layer.5.', 'transformer_model.encoder.layer.6.', 'transformer_model.encoder.layer.7.',
+                           'transformer_model.encoder.layer.8.', 'transformer_model.encoder.layer.9.', 'transformer_model.encoder.layer.10.',
+                           'transformer_model.encoder.layer.11.', 'transformer_model.pooler.']
+            bert_group2params = { bg : [] for bg in bert_groups }
+            for name, param in model.named_parameters():
+                is_bert_layer = False
+                for bg in bert_groups:
+                    if bg in name:
+                        is_bert_layer = True
+                        bert_group2params[bg].append(param)
+                        logger.info('Param: %s assigned to %s group', name, bg)
+                        break
+                if not is_bert_layer:
+                    non_pretrained_params.append(param)
+                    logger.info('Param: %s assigned to non_pretrained group', name)
+            for bg in bert_groups:
+                params_list.append( {'params': bert_group2params[bg], 'lr': config.trainer.bert_lr} )
+            params_list.append( {'params': non_pretrained_params, 'lr': config.trainer.lr} )
+            params_list.append( {'params': []} )
+        elif is_trainable_elmo_based:
+            pretrained_params = []
+            for name, param in model.named_parameters():
+                if '_elmo_lstm' in name:
+                    logger.info('Pretrained param: %s', name)
+                    pretrained_params.append(param)
+                else:
+                    logger.info('Non-pretrained param: %s', name)
+                    non_pretrained_params.append(param)
+            params_list = [ {'params': pretrained_params, 'lr': config.trainer.bert_lr},
+                            {'params': non_pretrained_params, 'lr': config.trainer.lr},
+                            {'params': []}
+                          ]
+        optimizer = optim.AdamW(params_list)
         scheduler = SlantedTriangular(
             optimizer=optimizer,
             num_epochs=config.trainer.num_epochs,
