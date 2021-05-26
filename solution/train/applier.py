@@ -18,6 +18,18 @@ logger = logging.getLogger(__name__)
 
 BERT_MAX_LENGTH = 512
 
+def reorder_grammemes(s):
+    if s == '_':
+        return s
+    g = s.split('|')
+    p = {}
+    for i in g:
+        j = i.split('=')
+        p[j[0]] = j[1]
+    r = dict(sorted(p.items(), key=lambda item: item[0].lower()))
+    rl = [ "=".join([k,v]) for k,v in r.items() ]
+    return "|".join(rl)
+
 
 def main():
     logging.basicConfig(level=logging.INFO, format='[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s')
@@ -99,6 +111,7 @@ def main():
                             word = predictions['words'][token_index]
                             lemma = predictions['predicted_lemmas'][token_index]
                             upos, feats = predictions['predicted_gram_vals'][token_index].split('|', 1)
+                            feats = reorder_grammemes(feats)
                             head_tag = predictions['predicted_dependencies'][token_index]
                             head_index = predictions['predicted_heads'][token_index]
     
