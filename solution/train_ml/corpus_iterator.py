@@ -46,7 +46,13 @@ class Sentence(object):
         if not self._tokens or self._tokens[0].lemma is None:
             return None
         #return [ [ tv.lemma for tv in token] for token in self._tm ]
-        return [ token[0].lemma for token in self._tm]
+        #return [ token[0].lemma for token in self._tm]
+        tmp = [ [ tv.lemma for tv in token] for token in self._tm ]
+        tmp_ext = []
+        for t in tmp:
+            d = 3 - len(t)
+            tmp_ext.append( t + ['EMPTY']*d )
+        return tmp_ext
 
     @property
     def grammar_values(self):

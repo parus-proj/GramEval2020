@@ -492,8 +492,8 @@ def main():
 #     print(batch000['metadata'][0]['lemmas'])
 #     print(batch000['metadata'][1]['lemmas'])
 #     print(batch000['lemma_indices'])
-#     
-#     
+#      
+#      
 #     print( "ITLOG: EXIT AFTER DATA READING" )
 #     print("\n------------------------------------------------- ITLOG-END ------------------------------------------\n")
 #     return

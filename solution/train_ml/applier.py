@@ -115,13 +115,13 @@ def main():
                             feats = reorder_grammemes(feats)
                             head_tag = predictions['predicted_dependencies'][token_index]
                             head_index = predictions['predicted_heads'][token_index]   
-                            print(token_index + 1, word, lemma, upos, '_', feats, head_index, head_tag, '_', '_', sep='\t', file=f_out)
-                            for tn, v in enumerate(gpred[1:]):
+                            print(token_index + 1, word, lemma[0], upos, '_', feats, head_index, head_tag, '_', '_', sep='\t', file=f_out)
+                            for tn, (v,l) in enumerate( zip(gpred[1:], lemma[1:]) ):
                                 upos, feats = v.split('|', 1)
-                                if upos == 'EMPTY':
+                                if upos == 'EMPTY' or l == 'EMPTY':
                                     break
                                 tnum = str(token_index+1) + ':' + str(tn+1)
-                                print(tnum, '_', '_', upos, '_', feats, '_', '_', '_', '_', sep='\t', file=f_out)
+                                print(tnum, '_', l, upos, '_', feats, '_', '_', '_', '_', sep='\t', file=f_out)
                         print(file=f_out)
 
 

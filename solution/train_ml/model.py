@@ -285,7 +285,7 @@ class DependencyParser(Model):
 
         self._attachment_scores = AttachmentScores()
         self._gram_val_prediction_accuracy = CategoricalAccuracy()
-        self._lemma_prediction_accuracy = CategoricalAccuracyMy()
+        self._lemma_prediction_accuracy = CategoricalAccuracy()
 
         initializer(self)
 
@@ -423,7 +423,7 @@ class DependencyParser(Model):
 
             words = words[: length.item() - 1]
             gram_vals = gram_vals[: length.item() - 1, :]
-            lemmas = lemmas[: length.item() - 1]
+            lemmas = lemmas[: length.item() - 1, :]
 
             instance_heads = list(instance_heads[1:length])
             instance_tags = instance_tags[1:length]
@@ -440,10 +440,11 @@ class DependencyParser(Model):
 #             print( "ITLOG: decoded_gram_vals = {}".format(decoded_gram_vals) )
 #             print("\n------------------------------------------------- ITLOG-END ------------------------------------------\n")            
 
-            decoded_lemmas.append([
-                self.lemmatize_helper.lemmatize(word, lemmatize_rule_index)
-                for word, lemmatize_rule_index in zip(words, lemmas)
-            ])
+            inst_lemmas = []
+            for word, word_lrules in zip(words, lemmas):
+                dtl = [self.lemmatize_helper.lemmatize(word, lrule) for lrule in word_lrules]
+                inst_lemmas.append(dtl)
+            decoded_lemmas.append(inst_lemmas)
 
         if self.task_config.task_type == "multitask":
             output_dict["predicted_dependencies"] = head_tag_labels
@@ -503,7 +504,8 @@ class DependencyParser(Model):
 #        grammar_value_logits = grammar_value_logits.select(2, 0)
         predicted_gram_vals = grammar_value_logits.argmax(-1)
 
-        lemma_logits = self._lemma_output(encoded_text)
+#        lemma_logits = self._lemma_output(encoded_text)
+        lemma_logits = self._lemma_output(batched_label_variants)
         predicted_lemmas = lemma_logits.argmax(-1)
 
         batch_size, _, encoding_dim = encoded_text.size()
@@ -578,10 +580,12 @@ class DependencyParser(Model):
 
         lemma_nll = torch.tensor(0.)
         if lemma_indices is not None:
-            lemma_nll = self._update_multiclass_prediction_metrics(
+            token_mask_3 = token_mask
+            token_mask_3 = torch.unsqueeze(token_mask_3, 2)
+            token_mask_3 = token_mask_3.repeat(1,1,3)            
+            lemma_nll = self._update_multiclass_prediction_metrics_3(
                 logits=lemma_logits, targets=lemma_indices,
-                mask=token_mask, accuracy_metric=self._lemma_prediction_accuracy,
-                masked_index=self.lemmatize_helper.UNKNOWN_RULE_INDEX
+                mask=token_mask_3, accuracy_metric=self._lemma_prediction_accuracy #, masked_index=self.lemmatize_helper.UNKNOWN_RULE_INDEX
             )
 
         output_dict = {
